@@ -1,19 +1,26 @@
-require("dotenv").config();
-const mysql = require("mysql2");
+const { S3Client } = require("@aws-sdk/client-s3");
+const admin = require("firebase-admin");
 
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+// 🔐 Firebase init (assuming your serviceAccountKey is correctly set)
+const serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
 });
 
-db.connect((err) => {
-  if (err) {
-    console.error("❌ MySQL connection failed:", err.message);
-  } else {
-    console.log("✅ Connected to MySQL database.");
-  }
+const db = admin.firestore();
+
+// ⚙️ Setup Cloudflare R2 client
+const r2Client = new S3Client({
+  region: "auto",
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
 });
 
-module.exports = db;
+module.exports = {
+  db,
+  r2Client,
+};
