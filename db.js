@@ -1,8 +1,8 @@
 const { S3Client } = require("@aws-sdk/client-s3");
 const admin = require("firebase-admin");
 
-// 🔐 Firebase init (assuming your serviceAccountKey is correctly set)
-const serviceAccount = require("./serviceAccountKey.json");
+// 🔐 Firebase init using env var
+const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
